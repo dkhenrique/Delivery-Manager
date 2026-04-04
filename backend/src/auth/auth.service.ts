@@ -16,26 +16,35 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(email: string, pass: string): Promise<User | null> {
     const user = await this.usersService.findByEmail(email);
-    if (user) {
-      const isMatch = await bcrypt.compare(pass, user.password_hash);
-      if (isMatch) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password_hash, ...result } = user;
-        return result;
-      }
+    if (!user) {
+      return null;
     }
-    return null;
+
+    const isMatch = await bcrypt.compare(pass, user.password_hash);
+    if (!isMatch) {
+      return null;
+    }
+
+    // RF-01: Usuário com cadastro REJECTED não pode fazer login
+    if (user.status === UserStatus.REJECTED) {
+      throw new UnauthorizedException(
+        'Seu cadastro foi rejeitado. Entre em contato com o síndico.',
+      );
+    }
+
+    return user;
   }
 
-  async login(user: Omit<User, 'password_hash'>) {
+  async login(user: User) {
     const payload = {
       email: user.email,
       sub: user.id,
       role: user.role,
       status: user.status,
     };
+
     return {
       access_token: await this.jwtService.signAsync(payload),
       user: {
@@ -48,15 +57,13 @@ export class AuthService {
     };
   }
 
-  async register(
-    registerDto: RegisterDto,
-  ): Promise<Omit<User, 'password_hash'>> {
+  async register(registerDto: RegisterDto): Promise<User> {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
-      throw new BadRequestException('Email already in use');
+      throw new BadRequestException('E-mail já está em uso');
     }
 
-    const createdUser = await this.usersService.create({
+    return this.usersService.create({
       name: registerDto.name,
       email: registerDto.email,
       password: registerDto.password,
@@ -65,9 +72,5 @@ export class AuthService {
       role: UserRole.RESIDENT,
       status: UserStatus.PENDING,
     });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password_hash, ...result } = createdUser;
-    return result;
   }
 }
