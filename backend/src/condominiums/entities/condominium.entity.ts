@@ -13,7 +13,7 @@ export class Condominium {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 150 })
   name: string;
 
   @Column({ type: 'varchar', length: 255 })

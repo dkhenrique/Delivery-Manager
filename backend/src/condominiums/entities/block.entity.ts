@@ -7,11 +7,13 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  Unique,
 } from 'typeorm';
 import { Condominium } from './condominium.entity';
 import { Apartment } from './apartment.entity';
 
 @Entity('blocks')
+@Unique(['condominium_id', 'name'])
 export class Block {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -20,7 +22,7 @@ export class Block {
   condominium_id: string;
 
   @ManyToOne(() => Condominium, (condominium) => condominium.blocks, {
-    onDelete: 'CASCADE',
+    onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'condominium_id' })
   condominium: Condominium;
