@@ -13,7 +13,7 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST || 'localhost',
@@ -22,7 +22,7 @@ import { AuthModule } from './auth/auth.module';
       password: process.env.DB_PASSWORD || 'devpassword',
       database: process.env.DB_NAME || 'delivery_manager',
       entities: [User, Condominium, Block, Apartment],
-      synchronize: true, // Only for development/initial step. It auto-creates tables.
+      synchronize: true, // DEV only — usar migrations em produção
     }),
     UsersModule,
     CondominiumsModule,

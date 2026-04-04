@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
@@ -11,9 +12,21 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   imports: [
     UsersModule,
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'fallback_secret_key_change_me_in_prod',
-      signOptions: { expiresIn: '30d' }, // Definição baseada no planning
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const secret = configService.get<string>('JWT_SECRET');
+        if (!secret) {
+          throw new Error(
+            'JWT_SECRET is not defined. Set it in your .env file.',
+          );
+        }
+        return {
+          secret,
+          signOptions: { expiresIn: '7d' }, // RNF-02: expiração de 7 dias
+        };
+      },
     }),
   ],
   controllers: [AuthController],
