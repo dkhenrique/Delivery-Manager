@@ -4,7 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Apartment } from '../../condominiums/entities/apartment.entity';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -24,6 +27,12 @@ export class User {
 
   @Column({ type: 'uuid', nullable: true })
   apartment_id: string | null;
+
+  @ManyToOne(() => Apartment, (apartment) => apartment.users, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'apartment_id' })
+  apartment: Apartment;
 
   @Column({ type: 'varchar', length: 150 })
   name: string;

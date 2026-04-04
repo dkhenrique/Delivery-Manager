@@ -1,0 +1,190 @@
+{
+  "info": {
+    "_postman_id": "c622d9d1-3b74-4b53-9f5b-6b744dffad07",
+    "name": "Delivery Manager API",
+    "description": "Coleção base para testes da API do Delivery Manager (Condomínio)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Condominiums",
+      "item": [
+        {
+          "name": "List Condominiums",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/condominiums",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "condominiums"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Condominium",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Condomínio das Flores\",\n  \"address\": \"Rua Exemplo, 123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/condominiums",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "condominiums"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Blocks",
+      "item": [
+        {
+          "name": "List Blocks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/blocks",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "blocks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Block",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"condominium_id\": \"ID_DO_CONDOMINIO_AQUI\",\n  \"name\": \"Bloco A\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/blocks",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "blocks"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Apartments",
+      "item": [
+        {
+          "name": "List Apartments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/apartments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "apartments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Apartment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"block_id\": \"ID_DO_BLOCO_AQUI\",\n  \"number\": \"101\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/apartments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "apartments"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

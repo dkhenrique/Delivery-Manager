@@ -5,6 +5,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { CondominiumsModule } from './condominiums/condominiums.module';
+import { Condominium } from './condominiums/entities/condominium.entity';
+import { Block } from './condominiums/entities/block.entity';
+import { Apartment } from './condominiums/entities/apartment.entity';
 
 @Module({
   imports: [
@@ -16,10 +20,11 @@ import { User } from './users/entities/user.entity';
       username: process.env.DB_USER || 'devuser',
       password: process.env.DB_PASSWORD || 'devpassword',
       database: process.env.DB_NAME || 'delivery_manager',
-      entities: [User],
+      entities: [User, Condominium, Block, Apartment],
       synchronize: true, // Only for development/initial step. It auto-creates tables.
     }),
     UsersModule,
+    CondominiumsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
