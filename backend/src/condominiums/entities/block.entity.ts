@@ -19,14 +19,18 @@ export class Block {
   @Column({ type: 'uuid' })
   condominium_id: string;
 
-  @ManyToOne(() => Condominium, (condominium) => condominium.blocks, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Condominium, (condominium) => condominium.blocks, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'condominium_id' })
   condominium: Condominium;
 
   @Column({ type: 'varchar', length: 50 })
   name: string;
 
-  @OneToMany(() => Apartment, (apartment) => apartment.block, { cascade: ['remove'] })
+  @OneToMany(() => Apartment, (apartment) => apartment.block, {
+    cascade: ['remove'],
+  })
   apartments: Apartment[];
 
   @CreateDateColumn()

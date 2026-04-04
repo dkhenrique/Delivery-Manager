@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CondominiumsService } from './condominiums.service';
 import { CreateCondominiumDto } from './dto/create-condominium.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('condominiums')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('condominiums')
 export class CondominiumsController {
   constructor(private readonly condominiumsService: CondominiumsService) {}

@@ -9,6 +9,7 @@ import { CondominiumsModule } from './condominiums/condominiums.module';
 import { Condominium } from './condominiums/entities/condominium.entity';
 import { Block } from './condominiums/entities/block.entity';
 import { Apartment } from './condominiums/entities/apartment.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { Apartment } from './condominiums/entities/apartment.entity';
     }),
     UsersModule,
     CondominiumsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
