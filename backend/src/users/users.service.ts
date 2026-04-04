@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { User, UserStatus } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto, UpdateUserStatusDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -16,7 +16,6 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = this.userRepository.create(createUserDto);
 
-    // Hash do password se for fornecido, senão cria um default para teste
     const plainPassword = createUserDto.password || '123456';
     user.password_hash = await bcrypt.hash(plainPassword, 10);
 
@@ -25,6 +24,12 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find();
+  }
+
+  async findAllPending(): Promise<User[]> {
+    return this.userRepository.find({
+      where: { status: UserStatus.PENDING },
+    });
   }
 
   async findOne(id: string): Promise<User> {
@@ -42,10 +47,29 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
 
+    // Atualiza apenas campos permitidos pelo DTO (role/status não estão no DTO público)
     Object.assign(user, updateUserDto);
 
     if (updateUserDto.password) {
       user.password_hash = await bcrypt.hash(updateUserDto.password, 10);
+    }
+
+    return this.userRepository.save(user);
+  }
+
+  /**
+   * Atualiza status do usuário (operação administrativa).
+   * Separado do update público para evitar mass assignment.
+   */
+  async updateStatus(
+    id: string,
+    statusDto: UpdateUserStatusDto,
+  ): Promise<User> {
+    const user = await this.findOne(id);
+
+    user.status = statusDto.status;
+    if (statusDto.rejection_reason !== undefined) {
+      user.rejection_reason = statusDto.rejection_reason;
     }
 
     return this.userRepository.save(user);
