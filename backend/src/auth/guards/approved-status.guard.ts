@@ -25,9 +25,7 @@ interface AuthenticatedRequest extends Request {
 @Injectable()
 export class ApprovedStatusGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const request = context
-      .switchToHttp()
-      .getRequest<AuthenticatedRequest>();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const user = request.user;
 
     if (!user) {

@@ -17,6 +17,8 @@ import { Package } from './packages/entities/package.entity';
 import { PickupCode } from './packages/entities/pickup-code.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationsModule } from './notifications/notifications.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -43,6 +45,8 @@ import { NotificationsModule } from './notifications/notifications.module';
     PackagesModule,
     ScheduleModule.forRoot(),
     NotificationsModule,
+    DashboardModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [
