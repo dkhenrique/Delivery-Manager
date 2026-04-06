@@ -9,6 +9,7 @@ import { Package, PackageStatus } from './entities/package.entity';
 import { PickupCode } from './entities/pickup-code.entity';
 import { Apartment } from '../condominiums/entities/apartment.entity';
 import { CreatePackageDto } from './dto/create-package.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PackagesService {
@@ -19,6 +20,7 @@ export class PackagesService {
     private readonly pickupCodeRepository: Repository<PickupCode>,
     @InjectRepository(Apartment)
     private readonly apartmentRepository: Repository<Apartment>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -63,7 +65,12 @@ export class PackagesService {
     await this.createPickupCode(savedPackage.id);
 
     // Retorna com o pickup_code populado
-    return this.findOne(savedPackage.id);
+    const fullPackage = await this.findOne(savedPackage.id);
+
+    // RN-20: Notifica moradores do apartamento destinatário
+    void this.notificationsService.notifyPackageRegistered(fullPackage);
+
+    return fullPackage;
   }
 
   /** Admin: lista todas as encomendas com relations */
@@ -157,7 +164,12 @@ export class PackagesService {
     pkg.status = PackageStatus.DELIVERED;
     pkg.delivered_at = new Date();
 
-    return this.packageRepository.save(pkg);
+    const delivered = await this.packageRepository.save(pkg);
+
+    // RN-20: Notifica morador que guardou sobre a retirada
+    void this.notificationsService.notifyPackageDelivered(delivered);
+
+    return delivered;
   }
 
   /**
@@ -189,10 +201,16 @@ export class PackagesService {
       pkg.pickup_code.code = newCode;
       pkg.pickup_code.expires_at = newExpiration;
 
-      return this.pickupCodeRepository.save(pkg.pickup_code);
+      const saved = await this.pickupCodeRepository.save(pkg.pickup_code);
+
+      // RN-20: Notifica com novo código
+      void this.notificationsService.notifyCodeResent(pkg, saved);
+
+      return saved;
     }
 
-    // RN-18: Código ainda válido → retorna o mesmo (para reenvio por email)
+    // RN-18: Código ainda válido → reenvia por email
+    void this.notificationsService.notifyCodeResent(pkg, pkg.pickup_code);
     return pkg.pickup_code;
   }
 

@@ -5,12 +5,14 @@ import { User, UserStatus } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto, UpdateUserStatusDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -72,7 +74,16 @@ export class UsersService {
       user.rejection_reason = statusDto.rejection_reason;
     }
 
-    return this.userRepository.save(user);
+    const updatedUser = await this.userRepository.save(user);
+
+    // RN-20: Notifica o morador sobre a decisão
+    if (updatedUser.status === UserStatus.APPROVED) {
+      void this.notificationsService.notifyUserApproved(updatedUser);
+    } else if (updatedUser.status === UserStatus.REJECTED) {
+      void this.notificationsService.notifyUserRejected(updatedUser);
+    }
+
+    return updatedUser;
   }
 
   async remove(id: string): Promise<void> {

@@ -15,6 +15,8 @@ import { AuthModule } from './auth/auth.module';
 import { PackagesModule } from './packages/packages.module';
 import { Package } from './packages/entities/package.entity';
 import { PickupCode } from './packages/entities/pickup-code.entity';
+import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { PickupCode } from './packages/entities/pickup-code.entity';
     CondominiumsModule,
     AuthModule,
     PackagesModule,
+    ScheduleModule.forRoot(),
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -5,11 +5,13 @@ import { PickupCode } from './entities/pickup-code.entity';
 import { PackagesController } from './packages.controller';
 import { PackagesService } from './packages.service';
 import { CondominiumsModule } from '../condominiums/condominiums.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Package, PickupCode]),
     CondominiumsModule, // para acessar o Apartment repository
+    NotificationsModule,
   ],
   controllers: [PackagesController],
   providers: [PackagesService],
