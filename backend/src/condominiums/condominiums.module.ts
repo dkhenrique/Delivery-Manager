@@ -12,5 +12,6 @@ import { CondominiumsService } from './condominiums.service';
   imports: [TypeOrmModule.forFeature([Condominium, Block, Apartment])],
   controllers: [CondominiumsController, BlocksController, ApartmentsController],
   providers: [CondominiumsService],
+  exports: [TypeOrmModule],
 })
 export class CondominiumsModule {}
