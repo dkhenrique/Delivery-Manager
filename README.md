@@ -154,6 +154,25 @@ Documentação Swagger em `http://localhost:3000/api/docs`
 | POST   | `/apartments`     | Criar apartamento            | Admin |
 | GET    | `/apartments`     | Listar apartamentos          | JWT   |
 
+### Packages (Encomendas)
+
+| Método | Rota                          | Descrição                                 | Auth  |
+| ------ | ----------------------------- | ----------------------------------------- | ----- |
+| POST   | `/packages`                   | Registrar uma encomenda recebida          | JWT   |
+| GET    | `/packages`                   | Listar todas as encomendas                | Admin |
+| GET    | `/packages/my`                | Listar encomendas do meu apartamento      | JWT   |
+| GET    | `/packages/guarded`           | Listar encomendas que estou guardando     | JWT   |
+| GET    | `/packages/:id`               | Detalhes da encomenda                     | JWT   |
+| PATCH  | `/packages/:id/confirm`       | Confirmar retirada via código 6 dígitos   | JWT   |
+| POST   | `/packages/:id/resend-code`   | Reenviar código de retirada               | JWT   |
+| POST   | `/packages/:id/photo`         | Enviar foto da encomenda                  | JWT   |
+
+### Dashboard
+
+| Método | Rota                 | Descrição                          | Auth  |
+| ------ | -------------------- | ---------------------------------- | ----- |
+| GET    | `/dashboard/metrics` | Obter métricas do dashboard        | Admin |
+
 > Todas as rotas acima são prefixadas com `/api/v1`.
 
 ---
@@ -180,14 +199,11 @@ Documentação Swagger em `http://localhost:3000/api/docs`
 - [x] Validação de DTOs e proteção contra mass assignment
 - [x] Swagger/OpenAPI docs
 - [x] Docker Compose para PostgreSQL
-
-### 🔜 Próximos passos (MVP)
-
-- [ ] **Módulo de Encomendas** — registro, listagem, status (PENDING → PICKED_UP → EXPIRED)
-- [ ] **Código de Retirada** — geração de 6 dígitos com expiração de 24h
-- [ ] **Notificações por e-mail** — envio ao destinatário na chegada e na aprovação/rejeição
-- [ ] **Prazo de guarda** — alerta ao morador e síndico após período sem retirada
-- [ ] **Dashboard do Síndico** — encomendas ativas, pendências e métricas
+- [x] **Módulo de Encomendas** — registro, listagem, status (PENDING → PICKED_UP → EXPIRED)
+- [x] **Código de Retirada** — geração de 6 dígitos com expiração de 24h
+- [x] **Notificações por e-mail** — envio ao destinatário na chegada e na aprovação/rejeição
+- [x] **Prazo de guarda** — alerta ao morador e síndico após período de inatividade via cron job
+- [x] **Dashboard do Síndico** — métricas e indicadores de encomendas e moradores pendentes
 
 ---
 
