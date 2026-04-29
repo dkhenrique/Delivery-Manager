@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Package, PackageStatus } from './entities/package.entity';
 import { PickupCode } from './entities/pickup-code.entity';
 import { Apartment } from '../condominiums/entities/apartment.entity';
+import { User } from '../users/entities/user.entity';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 
@@ -20,6 +21,8 @@ export class PackagesService {
     private readonly pickupCodeRepository: Repository<PickupCode>,
     @InjectRepository(Apartment)
     private readonly apartmentRepository: Repository<Apartment>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly notificationsService: NotificationsService,
   ) {}
 
@@ -87,13 +90,13 @@ export class PackagesService {
   }
 
   /** Encomendas destinadas ao apartamento do usuário */
-  async findMyPackages(userApartmentId: string | null): Promise<Package[]> {
-    if (!userApartmentId) {
-      return [];
-    }
+  async findMyPackages(userId: string): Promise<Package[]> {
+    // apartment_id is not in the JWT payload, so we look it up from the DB
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user?.apartment_id) return [];
 
     return this.packageRepository.find({
-      where: { recipient_apartment_id: userApartmentId },
+      where: { recipient_apartment_id: user.apartment_id },
       relations: ['received_by_user', 'recipient_apartment', 'pickup_code'],
       order: { created_at: 'DESC' },
     });

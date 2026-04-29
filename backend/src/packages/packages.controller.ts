@@ -36,7 +36,7 @@ import { Throttle } from '@nestjs/throttler';
 
 interface AuthenticatedUser {
   id: string;
-  apartment_id: string | null;
+  email: string;
   role: UserRole;
   status: string;
 }
@@ -90,7 +90,7 @@ export class PackagesController {
     summary: 'Listar encomendas destinadas ao meu apartamento',
   })
   findMyPackages(@Req() req: AuthenticatedRequest) {
-    return this.packagesService.findMyPackages(req.user.apartment_id || null);
+    return this.packagesService.findMyPackages(req.user.id);
   }
 
   @Get('guarded')
