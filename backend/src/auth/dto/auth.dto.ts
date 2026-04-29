@@ -50,3 +50,22 @@ export class RegisterDto {
   @IsOptional()
   apartment_id?: string;
 }
+
+export class ForgotPasswordDto {
+  @ApiProperty({ example: 'joao@email.com' })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+}
+
+export class ResetPasswordDto {
+  @ApiProperty({ description: 'Token recebido por e-mail' })
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+
+  @ApiProperty({ example: 'NovaSenh@123' })
+  @IsString()
+  @MinLength(6)
+  password: string;
+}
