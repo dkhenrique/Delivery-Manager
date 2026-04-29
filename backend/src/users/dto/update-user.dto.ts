@@ -45,6 +45,20 @@ export class UpdateUserDto {
 }
 
 /**
+ * DTO para auto-atualização de perfil pelo próprio usuário autenticado.
+ * Limita as alterações apenas ao apartamento — impede mass assignment de campos sensíveis.
+ */
+export class UpdateMyProfileDto {
+  @ApiPropertyOptional({
+    example: 'uuid-do-apartamento',
+    description: 'ID do apartamento do morador',
+  })
+  @IsUUID()
+  @IsOptional()
+  apartment_id?: string;
+}
+
+/**
  * DTO interno para operações administrativas de status.
  * Usado pelos endpoints /approve e /reject — não exposto na API pública.
  */

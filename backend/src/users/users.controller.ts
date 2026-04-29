@@ -9,6 +9,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
   BadRequestException,
+  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -18,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto, UpdateMyProfileDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -50,6 +51,23 @@ export class UsersController {
   @ApiOperation({ summary: 'Listar cadastros pendentes (Admin only)' })
   findPending() {
     return this.usersService.findAllPending();
+  }
+
+  @Get('me')
+  @ApiOperation({ summary: 'Obter perfil do usuário autenticado' })
+  @ApiResponse({ status: 200, description: 'Perfil retornado com sucesso' })
+  getMyProfile(@Request() req: { user: { id: string } }) {
+    return this.usersService.findOne(req.user.id);
+  }
+
+  @Patch('me')
+  @ApiOperation({ summary: 'Atualizar apartamento do usuário autenticado' })
+  @ApiResponse({ status: 200, description: 'Perfil atualizado com sucesso' })
+  updateMyProfile(
+    @Request() req: { user: { id: string } },
+    @Body() updateMyProfileDto: UpdateMyProfileDto,
+  ) {
+    return this.usersService.update(req.user.id, updateMyProfileDto);
   }
 
   @Get(':id')
