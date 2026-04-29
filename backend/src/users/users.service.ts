@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { User, UserStatus, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto, UpdateUserStatusDto } from './dto/update-user.dto';
@@ -26,7 +26,11 @@ export class UsersService {
     const plainPassword = createUserDto.password || '123456';
     user.password_hash = await bcrypt.hash(plainPassword, 10);
 
-    return this.userRepository.save(user);
+    try {
+      return await this.userRepository.save(user);
+    } catch (error: unknown) {
+      this.handleUniqueConstraintError(error);
+    }
   }
 
   async findAll(): Promise<User[]> {
@@ -49,6 +53,32 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  async findByCpf(cpf: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { cpf } });
+  }
+
+  async setResetToken(id: string, token: string, expires: Date): Promise<void> {
+    await this.userRepository.update(id, {
+      reset_password_token: token,
+      reset_password_expires: expires,
+    });
+  }
+
+  async findByResetToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { reset_password_token: token },
+    });
+  }
+
+  async updatePassword(id: string, newPassword: string): Promise<void> {
+    const hash = await bcrypt.hash(newPassword, 10);
+    await this.userRepository.update(id, {
+      password_hash: hash,
+      reset_password_token: null,
+      reset_password_expires: null,
+    });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -79,7 +109,11 @@ export class UsersService {
       user.password_hash = await bcrypt.hash(updateUserDto.password, 10);
     }
 
-    return this.userRepository.save(user);
+    try {
+      return await this.userRepository.save(user);
+    } catch (error: unknown) {
+      this.handleUniqueConstraintError(error);
+    }
   }
 
   /**
@@ -126,6 +160,44 @@ export class UsersService {
       await this.checkLastAdmin(user.id);
     }
     await this.userRepository.remove(user);
+  }
+
+  /**
+   * Interpreta erros de unique constraint do PostgreSQL (código 23505) e os
+   * converte em BadRequestException com mensagem legível.
+   * Lança o erro original se não for uma violação de unicidade.
+   */
+  private handleUniqueConstraintError(error: unknown): never {
+    if (error instanceof QueryFailedError) {
+      // driverError contém o objeto de erro nativo do driver pg
+      const driverError = (
+        error as QueryFailedError & {
+          driverError: { code?: string; detail?: string };
+        }
+      ).driverError;
+
+      if (driverError?.code === '23505') {
+        const detail = driverError.detail ?? '';
+
+        if (detail.includes('cpf')) {
+          throw new BadRequestException(
+            'CPF já está cadastrado no sistema. Utilize outro CPF ou faça login na conta existente.',
+          );
+        }
+        if (detail.includes('email')) {
+          throw new BadRequestException(
+            'E-mail já está em uso. Utilize outro endereço ou faça login na conta existente.',
+          );
+        }
+
+        throw new BadRequestException(
+          'Dado já cadastrado. Verifique as informações fornecidas e tente novamente.',
+        );
+      }
+    }
+
+    // Não é uma violação de unicidade — relança o erro original
+    throw error;
   }
 
   private async checkLastAdmin(userIdToChange: string): Promise<void> {

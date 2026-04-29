@@ -57,6 +57,12 @@ export class User {
   @Column({ type: 'text', nullable: true })
   rejection_reason: string | null;
 
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  reset_password_token: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  reset_password_expires: Date | null;
+
   @Column({ type: 'timestamp', nullable: true })
   pending_alert_sent_at: Date | null;
 
