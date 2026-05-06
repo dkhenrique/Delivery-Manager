@@ -15,6 +15,16 @@ export type CreatePackageState = {
   packageId?: string;
 };
 
+export type ConfirmPickupState = {
+  success: boolean;
+  message?: string;
+};
+
+export type ResendCodeState = {
+  success: boolean;
+  message?: string;
+};
+
 export async function createPackageAction(
   prevState: CreatePackageState,
   formData: FormData,
@@ -78,5 +88,89 @@ export async function createPackageAction(
       "Encomenda registrada com sucesso! O morador será notificado por e-mail com o código de retirada.",
     pickupCode: pkg.pickup_code?.code,
     packageId: pkg.id,
+  };
+}
+
+export async function confirmPickupAction(
+  prevState: ConfirmPickupState,
+  formData: FormData,
+): Promise<ConfirmPickupState> {
+  const packageId = formData.get("packageId") as string;
+  const code = formData.get("code") as string;
+
+  if (!packageId || !code) {
+    return { success: false, message: "Dados inválidos" };
+  }
+
+  const token = await getAuthToken();
+
+  const res = await fetch(`${BASE_URL}/packages/${packageId}/confirm`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ code }),
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const errBody = (await res.json().catch(() => ({}))) as {
+      message?: string;
+    };
+    return {
+      success: false,
+      message:
+        errBody?.message ?? "Erro ao confirmar retirada. Tente novamente.",
+    };
+  }
+
+  revalidatePath("/dashboard/packages");
+  revalidatePath("/dashboard/packages/confirmar");
+
+  return {
+    success: true,
+    message: "Retirada confirmada com sucesso!",
+  };
+}
+
+export async function resendCodeAction(
+  prevState: ResendCodeState,
+  formData: FormData,
+): Promise<ResendCodeState> {
+  const packageId = formData.get("packageId") as string;
+
+  if (!packageId) {
+    return { success: false, message: "Dados inválidos" };
+  }
+
+  const token = await getAuthToken();
+
+  // Chama o endpoint para reenviar o código
+  const res = await fetch(`${BASE_URL}/packages/${packageId}/resend-code`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const errBody = (await res.json().catch(() => ({}))) as {
+      message?: string;
+    };
+    return {
+      success: false,
+      message:
+        errBody?.message ?? "Erro ao reenviar código. Tente novamente.",
+    };
+  }
+
+  revalidatePath("/dashboard/packages");
+
+  return {
+    success: true,
+    message: "Código reenviado com sucesso! Verifique seu e-mail.",
   };
 }
