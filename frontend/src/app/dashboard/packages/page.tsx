@@ -2,6 +2,7 @@ import { serverFetch } from "@/lib/server-api";
 import { getAuthUser } from "@/lib/auth";
 import { Package, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { PhotoUploadButton } from "@/features/packages/components/photo-upload-button";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -147,6 +148,27 @@ function AdminPackageRow({ pkg }: { pkg: PackageItem }) {
       <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
         {formatDate(pkg.created_at)}
       </td>
+      <td className="px-4 py-3">
+        <div className="flex flex-col gap-2">
+          {pkg.status === "WAITING_PICKUP" && (
+            <Link
+              href={`/dashboard/packages/confirmar/${pkg.id}`}
+              className="inline-flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors"
+            >
+              Confirmar Retirada
+            </Link>
+          )}
+          {!pkg.photo_url && (
+            <PhotoUploadButton packageId={pkg.id} />
+          )}
+          {pkg.photo_url && (
+            <span className="inline-flex items-center gap-1 text-xs text-green-700 dark:text-green-400">
+              <CheckCircle2 className="h-3 w-3" />
+              Foto anexada
+            </span>
+          )}
+        </div>
+      </td>
     </tr>
   );
 }
@@ -194,12 +216,25 @@ function GuardedPackageRow({ pkg }: { pkg: PackageItem }) {
         {formatDate(pkg.created_at)}
       </td>
       <td className="px-4 py-3">
-        <Link 
-          href={`/dashboard/packages/confirmar/${pkg.id}`}
-          className="inline-flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors"
-        >
-          Confirmar Retirada
-        </Link>
+        <div className="flex flex-col gap-2">
+          {pkg.status === "WAITING_PICKUP" && (
+            <Link 
+              href={`/dashboard/packages/confirmar/${pkg.id}`}
+              className="inline-flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors"
+            >
+              Confirmar Retirada
+            </Link>
+          )}
+          {!pkg.photo_url && (
+            <PhotoUploadButton packageId={pkg.id} />
+          )}
+          {pkg.photo_url && (
+            <span className="inline-flex items-center gap-1 text-xs text-green-700 dark:text-green-400">
+              <CheckCircle2 className="h-3 w-3" />
+              Foto anexada
+            </span>
+          )}
+        </div>
       </td>
     </tr>
   );
@@ -217,6 +252,7 @@ const COLUMN_HEADERS: Record<PackageListVariant, string[]> = {
     "Prazo",
     "Guardado por",
     "Registrado em",
+    "Ações",
   ],
   my: [
     "Apartamento",
