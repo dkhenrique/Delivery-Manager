@@ -193,6 +193,14 @@ function GuardedPackageRow({ pkg }: { pkg: PackageItem }) {
       <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
         {formatDate(pkg.created_at)}
       </td>
+      <td className="px-4 py-3">
+        <Link 
+          href={`/dashboard/packages/confirmar/${pkg.id}`}
+          className="inline-flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors"
+        >
+          Confirmar Retirada
+        </Link>
+      </td>
     </tr>
   );
 }
@@ -225,6 +233,7 @@ const COLUMN_HEADERS: Record<PackageListVariant, string[]> = {
     "Prazo de guarda",
     "Código",
     "Registrado em",
+    "Ações",
   ],
 };
 
