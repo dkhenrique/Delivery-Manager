@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { serverFetch } from "@/lib/server-api";
 import { getAuthUser } from "@/lib/auth";
 import { Users, Package, Clock, TrendingUp } from "lucide-react";
+import { MetricCardsSkeleton } from "@/components/skeletons";
 
 interface DashboardMetrics {
   pendingResidents: number;
@@ -140,7 +142,13 @@ export default async function DashboardPage() {
       )}
 
       {/* Content based on role */}
-      {isAdmin ? <AdminMetrics /> : <ResidentWelcome />}
+      {isAdmin ? (
+        <Suspense fallback={<MetricCardsSkeleton />}>
+          <AdminMetrics />
+        </Suspense>
+      ) : (
+        <ResidentWelcome />
+      )}
     </div>
   );
 }

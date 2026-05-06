@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { ReactQueryProvider } from '@/providers/react-query-provider';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: '--font-sans', // shadcn uses font-sans explicitly
@@ -30,6 +31,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ReactQueryProvider>{children}</ReactQueryProvider>
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   );

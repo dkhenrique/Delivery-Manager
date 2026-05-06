@@ -25,6 +25,11 @@ export type ResendCodeState = {
   message?: string;
 };
 
+export type UploadPhotoState = {
+  success: boolean;
+  message?: string;
+};
+
 export async function createPackageAction(
   prevState: CreatePackageState,
   formData: FormData,
@@ -172,5 +177,74 @@ export async function resendCodeAction(
   return {
     success: true,
     message: "Código reenviado com sucesso! Verifique seu e-mail.",
+  };
+}
+
+const ALLOWED_PHOTO_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+];
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5MB
+
+export async function uploadPhotoAction(
+  prevState: UploadPhotoState,
+  formData: FormData,
+): Promise<UploadPhotoState> {
+  const packageId = formData.get("packageId") as string;
+  const file = formData.get("photo") as File | null;
+
+  if (!packageId) {
+    return { success: false, message: "ID da encomenda não informado." };
+  }
+
+  if (!file || file.size === 0) {
+    return { success: false, message: "Nenhuma foto selecionada." };
+  }
+
+  if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+    return {
+      success: false,
+      message: "Formato inválido. Use JPG, PNG ou WEBP.",
+    };
+  }
+
+  if (file.size > MAX_PHOTO_SIZE) {
+    return {
+      success: false,
+      message: "Arquivo muito grande. O tamanho máximo é 5MB.",
+    };
+  }
+
+  const token = await getAuthToken();
+
+  const body = new FormData();
+  body.append("photo", file);
+
+  const res = await fetch(`${BASE_URL}/packages/${packageId}/photo`, {
+    method: "POST",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body,
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const errBody = (await res.json().catch(() => ({}))) as {
+      message?: string;
+    };
+    return {
+      success: false,
+      message:
+        errBody?.message ?? "Erro ao enviar foto. Tente novamente.",
+    };
+  }
+
+  revalidatePath("/dashboard/packages");
+
+  return {
+    success: true,
+    message: "Foto enviada com sucesso!",
   };
 }
